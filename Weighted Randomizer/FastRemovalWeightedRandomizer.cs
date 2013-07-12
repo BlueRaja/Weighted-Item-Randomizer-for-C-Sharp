@@ -13,16 +13,16 @@ namespace Weighted_Randomizer
     public class FastRemovalWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
         where TKey : IComparable<TKey>
     {
-        private readonly Node sentinel;
-        private readonly ThreadSafeRandom random;
-        private Node root;
-        private Node deleted;
+        private readonly Node _sentinel;
+        private readonly ThreadSafeRandom _random;
+        private Node _root;
+        private Node _deleted;
 
         public FastRemovalWeightedRandomizer()
         {
-            root = sentinel = new Node();
-            deleted = null;
-            random = new ThreadSafeRandom();
+            _root = _sentinel = new Node();
+            _deleted = null;
+            _random = new ThreadSafeRandom();
         }
 
         //public FastRemovalWeightedRandomizer(int seed)
@@ -79,9 +79,9 @@ namespace Weighted_Randomizer
             {   
                 //Update the subtreeWeights before moving the nodes
                 long oldSubtreeWeight = node.subtreeWeight;
-                if (node != sentinel)
+                if (node != _sentinel)
                     node.subtreeWeight = oldSubtreeWeight - node.left.subtreeWeight + node.left.right.subtreeWeight;
-                if (node.left != sentinel)
+                if (node.left != _sentinel)
                     node.left.subtreeWeight = oldSubtreeWeight;
 
                 // rotate right
@@ -98,9 +98,9 @@ namespace Weighted_Randomizer
             {
                 //Update the subtreeWeights before moving the nodes
                 long oldSubtreeWeight = node.subtreeWeight;
-                if (node != sentinel)
+                if (node != _sentinel)
                     node.subtreeWeight = oldSubtreeWeight - node.right.subtreeWeight + node.right.left.subtreeWeight;
-                if (node.right != sentinel)
+                if (node.right != _sentinel)
                     node.right.subtreeWeight = oldSubtreeWeight;
 
                 // rotate left
@@ -114,9 +114,9 @@ namespace Weighted_Randomizer
 
         private void InsertNode(ref Node node, TKey key, int weight)
         {
-            if (node == sentinel)
+            if (node == _sentinel)
             {
-                node = new Node(key, weight, sentinel);
+                node = new Node(key, weight, _sentinel);
                 UpdateSubtreeWeightsForInsertion(node);
                 Count++;
                 return;
@@ -142,9 +142,9 @@ namespace Weighted_Randomizer
 
         private bool DeleteNode(ref Node node, TKey key)
         {
-            if (node == sentinel)
+            if (node == _sentinel)
             {
-                return (deleted != null);
+                return (_deleted != null);
             }
 
             int compare = key.CompareTo(node.key);
@@ -159,7 +159,7 @@ namespace Weighted_Randomizer
             {
                 if (compare == 0)
                 {
-                    deleted = node;
+                    _deleted = node;
                 }
                 if (!DeleteNode(ref node.right, key))
                 {
@@ -167,12 +167,12 @@ namespace Weighted_Randomizer
                 }
             }
 
-            if (deleted != null)
+            if (_deleted != null)
             {
-                UpdateSubtreeWeightsForDeletion(deleted, node);
-                deleted.key = node.key;
-                deleted.weight = node.weight;
-                deleted = null;
+                UpdateSubtreeWeightsForDeletion(_deleted, node);
+                _deleted.key = node.key;
+                _deleted.weight = node.weight;
+                _deleted = null;
                 node = node.right;
                 Count--;
             }
@@ -196,7 +196,7 @@ namespace Weighted_Randomizer
 
         private Node FindNode(Node node, TKey key)
         {
-            while (node != sentinel)
+            while (node != _sentinel)
             {
                 int compare = key.CompareTo(node.key);
                 if (compare < 0)
@@ -223,7 +223,7 @@ namespace Weighted_Randomizer
         private void UpdateSubtreeWeightsForInsertion(Node insertedNode)
         {
             //Search down the tree for the inserted node, updating the weights as we go
-            Node currentNode = root;
+            Node currentNode = _root;
             while (currentNode != insertedNode)
             {
                 currentNode.subtreeWeight += insertedNode.weight;
@@ -240,7 +240,7 @@ namespace Weighted_Randomizer
         private void UpdateSubtreeWeightsForDeletion(Node deletedNode, Node leftmostRightDescendent)
         {
             //Search down the tree for the deletedNode, updating the weights as we go
-            Node currentNode = root;
+            Node currentNode = _root;
             while (currentNode != deletedNode)
             {
                 currentNode.subtreeWeight -= deletedNode.weight;
@@ -254,7 +254,7 @@ namespace Weighted_Randomizer
 
             //Deleted node gets replaced by leftmostRightDescendent, so we need to continue searching the subtree for it instead,
             //again updating the nodes' weights as we go
-            while (currentNode != leftmostRightDescendent && currentNode != sentinel)
+            while (currentNode != leftmostRightDescendent && currentNode != _sentinel)
             {
                 int compare = leftmostRightDescendent.key.CompareTo(currentNode.key);
                 currentNode = (compare < 0 ? currentNode.left : currentNode.right);
@@ -278,7 +278,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public void Clear()
         {
-            root = sentinel;
+            _root = _sentinel;
         }
 
         /// <summary>
@@ -310,8 +310,8 @@ namespace Weighted_Randomizer
         /// </summary>
         public bool Contains(TKey key)
         {
-            Node node = FindNode(root, key);
-            return (node != null && node != sentinel);
+            Node node = FindNode(_root, key);
+            return (node != null && node != _sentinel);
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public void Add(TKey key)
         {
-            InsertNode(ref root, key, 1);
+            InsertNode(ref _root, key, 1);
         }
 
         /// <summary>
@@ -327,7 +327,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public void Add(TKey key, int weight)
         {
-            InsertNode(ref root, key, weight);
+            InsertNode(ref _root, key, weight);
         }
 
         /// <summary>
@@ -336,8 +336,8 @@ namespace Weighted_Randomizer
         /// <returns>Returns true if the item was successfully deleted, or false if it was not found</returns>
         public bool Remove(TKey key)
         {
-            deleted = null;
-            return DeleteNode(ref root, key);
+            _deleted = null;
+            return DeleteNode(ref _root, key);
         }
         #endregion
 
@@ -349,7 +349,7 @@ namespace Weighted_Randomizer
 
         public IEnumerator<TKey> GetEnumerator()
         {
-            return InorderTraversal(root);
+            return InorderTraversal(_root);
         }
 
         private IEnumerator<TKey> InorderTraversal(Node node)
@@ -357,9 +357,9 @@ namespace Weighted_Randomizer
             //The obvious way of doing this - calling itself recursively - ends up creating an enormous number
             // of iterators (as many as there are items in the tree).  So, we have to emulate recursion manually >_<
             Stack<Node> stack = new Stack<Node>();
-            while (stack.Count != 0 || node != sentinel)
+            while (stack.Count != 0 || node != _sentinel)
             {
-                if (node != sentinel)
+                if (node != _sentinel)
                 {
                     stack.Push(node);
                     node = node.left;
@@ -374,7 +374,7 @@ namespace Weighted_Randomizer
         }
         #endregion
 
-        #region Other public methods
+        #region IWeightedRandomizer<T> stuff
         /// <summary>
         /// The total weight of all the items added so far
         /// </summary>
@@ -382,7 +382,7 @@ namespace Weighted_Randomizer
         {
             get
             {
-                return root.subtreeWeight;
+                return _root.subtreeWeight;
             }
         }
 
@@ -395,8 +395,8 @@ namespace Weighted_Randomizer
             if (Count <= 0)
                 throw new InvalidOperationException("There are no items in the FastRemovalWeightedRandomizer");
 
-            Node currentNode = root;
-            long randomNumber = random.NextLong(0, TotalWeight) + 1;  //[1, TotalWeight] inclusive
+            Node currentNode = _root;
+            long randomNumber = _random.NextLong(0, TotalWeight) + 1;  //[1, TotalWeight] inclusive
 
             while (true)
             {
@@ -454,7 +454,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public int GetWeight(TKey key)
         {
-            Node node = FindNode(root, key);
+            Node node = FindNode(_root, key);
             if (node == null)
                 throw new ArgumentException("Key not found in FastRemovalWeightedRandomizer: " + key);
             return node.weight;
@@ -472,7 +472,7 @@ namespace Weighted_Randomizer
             }
             else
             {
-                Node node = FindNode(root, key);
+                Node node = FindNode(_root, key);
                 if (node == null)
                 {
                     Add(key, weight);
@@ -507,13 +507,13 @@ namespace Weighted_Randomizer
         {
             get
             {
-                return GetNumLayers(root);
+                return GetNumLayers(_root);
             }
         }
 
         private int GetNumLayers(Node node)
         {
-            if (node == null || node == sentinel)
+            if (node == null || node == _sentinel)
                 return 0;
             return Math.Max(GetNumLayers(node.left), GetNumLayers(node.right)) + 1;
         }
@@ -532,17 +532,17 @@ namespace Weighted_Randomizer
         /// </summary>
         private void DebugCheckTree()
         {
-            DebugCheckNode(root);
+            DebugCheckNode(_root);
             Assert(Count == 0 || Height <= 2 * Math.Ceiling(Math.Log(Count, 2) + 1));
         }
 
         private void DebugCheckNode(Node node)
         {
-            if (node == null || node == sentinel)
+            if (node == null || node == _sentinel)
                 return;
 
-            Assert(node.left == null || node.left == sentinel || node.left.key.CompareTo(node.key) < 0);
-            Assert(node.right == null || node.right == sentinel || node.right.key.CompareTo(node.key) > 0);
+            Assert(node.left == null || node.left == _sentinel || node.left.key.CompareTo(node.key) < 0);
+            Assert(node.right == null || node.right == _sentinel || node.right.key.CompareTo(node.key) > 0);
             Assert(node.left.subtreeWeight + node.right.subtreeWeight + node.weight == node.subtreeWeight);
 
             DebugCheckNode(node.left);
