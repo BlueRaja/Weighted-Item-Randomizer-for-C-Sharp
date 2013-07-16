@@ -43,8 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FastRemovalWeightedRandomizerTests.cs" />
-    <Compile Include="FastReplacementWeightedRandomizerTests.cs" />
+    <Compile Include="DynamicWeightedRandomizerTests.cs" />
+    <Compile Include="StaticWeightedRandomizerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpeedTests.cs" />
     <Compile Include="WeightedRandomizerTestsBase.cs" />
