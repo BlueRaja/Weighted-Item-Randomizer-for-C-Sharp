@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace Weighted_Randomizer
 {
     /// <summary>
-	/// Represents a class which can choose weighted items at random; that is, it can randomly choose items from a list, giving some items higher
-	/// probability of being chosen than others.  It supports both choosing with replacement (so the same item can be chosen multiple times) and
-	/// choosing with removal (so each item can be chosen only once).
+    /// Represents a class which can choose weighted items at random; that is, it can randomly choose items from a list, giving some items higher
+    /// probability of being chosen than others.  It supports both choosing with replacement (so the same item can be chosen multiple times) and
+    /// choosing with removal (so each item can be chosen only once).
     /// 
     /// Note that though this interface is enumerable, the enumeration is not necessarily ordered by anything.
-	/// </summary>
-	/// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
+    /// </summary>
+    /// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
     public interface IWeightedRandomizer<TKey> : ICollection<TKey>
     {
         /// <summary>
@@ -34,12 +34,12 @@ namespace Weighted_Randomizer
         /// </summary>
         TKey NextWithRemoval();
 
-		/// <summary>
+        /// <summary>
         /// Adds the given item with the given weight.  Higher weights are more likely to be chosen.
         /// Throw an ArgumentOutOfRange exception if weight &lt;= 0.
         /// </summary>
         void Add(TKey key, int weight);
-		
+
         /// <summary>
         /// Shortcut syntax to add, remove, and update an item
         /// </summary>

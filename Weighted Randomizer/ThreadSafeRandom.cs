@@ -11,12 +11,12 @@ namespace Weighted_Randomizer
 
         public ThreadSafeRandom()
         {
-            if (_local == null)
+            if(_local == null)
             {
                 //Instantiating multiple Random() instances in a row very quickly will result in
                 //all of them returning the same numbers.  This is a workaround for that problem.
                 int seed;
-                lock (_global)
+                lock(_global)
                 {
                     seed = _global.Next();
                 }

@@ -58,7 +58,7 @@ namespace Weighted_Randomizer_Tests
 
                 const int numIterations = 10000;
                 Stopwatch timer = new Stopwatch();
-                if (displayText)
+                if(displayText)
                 {
                     Console.WriteLine("Testing {0}", randomizer.GetType().Name);
                     Console.WriteLine("--------------------------------");
@@ -68,19 +68,19 @@ namespace Weighted_Randomizer_Tests
                 randomizer.Clear();
                 timer.Reset();
                 timer.Start();
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.Add(i, i);
                 }
-                for (int i = 1; i <= numIterations/1000; i++)
+                for(int i = 1; i <= numIterations / 1000; i++)
                 {
                     randomizer.NextWithReplacement();
                 }
                 timer.Stop();
                 GC.Collect();
-                if (displayText)
+                if(displayText)
                 {
-                    Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, numIterations/1000,
+                    Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, numIterations / 1000,
                         timer.ElapsedMilliseconds);
                 }
 
@@ -88,17 +88,17 @@ namespace Weighted_Randomizer_Tests
                 randomizer.Clear();
                 timer.Reset();
                 timer.Start();
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.Add(i, i);
                 }
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.NextWithReplacement();
                 }
                 timer.Stop();
                 GC.Collect();
-                if (displayText)
+                if(displayText)
                 {
                     Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, numIterations,
                         timer.ElapsedMilliseconds);
@@ -108,17 +108,17 @@ namespace Weighted_Randomizer_Tests
                 randomizer.Clear();
                 timer.Reset();
                 timer.Start();
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.Add(i, i);
                 }
-                for (int i = 1; i <= 10*numIterations; i++)
+                for(int i = 1; i <= 10 * numIterations; i++)
                 {
                     randomizer.NextWithReplacement();
                 }
                 timer.Stop();
                 GC.Collect();
-                if (displayText)
+                if(displayText)
                 {
                     Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, 10 * numIterations,
                         timer.ElapsedMilliseconds);
@@ -128,14 +128,14 @@ namespace Weighted_Randomizer_Tests
                 randomizer.Clear();
                 timer.Reset();
                 timer.Start();
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.Add(i, i);
                     randomizer.NextWithReplacement();
                 }
                 timer.Stop();
                 GC.Collect();
-                if (displayText)
+                if(displayText)
                 {
                     Console.WriteLine("( Add() + NextWithReplacement() )x{0} (interleaved): {1} ms", numIterations,
                         timer.ElapsedMilliseconds);
@@ -145,17 +145,17 @@ namespace Weighted_Randomizer_Tests
                 randomizer.Clear();
                 timer.Reset();
                 timer.Start();
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.Add(i, i);
                 }
-                for (int i = 1; i <= numIterations; i++)
+                for(int i = 1; i <= numIterations; i++)
                 {
                     randomizer.NextWithRemoval();
                 }
                 timer.Stop();
                 GC.Collect();
-                if (displayText)
+                if(displayText)
                 {
                     Console.WriteLine("Add()x{0} + NextWithRemoval()x{1}: {2} ms", numIterations, numIterations,
                         timer.ElapsedMilliseconds);

@@ -7,39 +7,40 @@ using System.Threading.Tasks;
 
 namespace Weighted_Randomizer
 {
-	/// <summary>
-	/// A weighted randomizer implementation which uses Vose's alias method.  It is very fast when doing many contiguous calls to NextWithReplacement().
-	/// It is slow when making making calls to NextWithRemoval(), or when adding/removing/updating items often between calls to NextWithReplacement().
-	/// </summary>
-	/// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
+    /// <summary>
+    /// A weighted randomizer implementation which uses Vose's alias method.  It is very fast when doing many contiguous calls to NextWithReplacement().
+    /// It is slow when making making calls to NextWithRemoval(), or when adding/removing/updating items often between calls to NextWithReplacement().
+    /// </summary>
+    /// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
     public class FastReplacementWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
     {
         private readonly ThreadSafeRandom _random;
         private readonly Dictionary<TKey, int> _weights;
         private bool _listNeedsRebuilding;
-		
-		private readonly IList<ProbabilityBox> _probabilityBoxes;
+
+        private readonly IList<ProbabilityBox> _probabilityBoxes;
         private long _heightPerBox;
-		
-		/// <summary>
-		/// The discrete boxes used to hold the keys/aliases in Vose's alias method.  Since we're using integers rather than floating-point
-		/// probabilities, I've chosen the word "balls" for the value of the coin-flip used to determine whether to choose the key or the alias
-		/// from the box.  If the number of balls chosen (taken from 1 to _heightPerBox) is <= NumBallsInBox, we choose the Key; otherwise,
-		/// we choose the Alias.  Thus, there is exactly a NumBallsInBox/_heightPerBox probability of choosing the Key.
-		/// </summary>
-		private struct ProbabilityBox
-		{
-			public TKey Key { get; private set; }
-			public TKey Alias { get; private set; }
-			public long NumBallsInBox { get; private set; }
-			
-			public ProbabilityBox(TKey key, TKey alias, long numBallsInBox) : this()
-			{
-				Key = key;
-				Alias = alias;
-				NumBallsInBox = numBallsInBox;
-			}
-		}
+
+        /// <summary>
+        /// The discrete boxes used to hold the keys/aliases in Vose's alias method.  Since we're using integers rather than floating-point
+        /// probabilities, I've chosen the word "balls" for the value of the coin-flip used to determine whether to choose the key or the alias
+        /// from the box.  If the number of balls chosen (taken from 1 to _heightPerBox) is <= NumBallsInBox, we choose the Key; otherwise,
+        /// we choose the Alias.  Thus, there is exactly a NumBallsInBox/_heightPerBox probability of choosing the Key.
+        /// </summary>
+        private struct ProbabilityBox
+        {
+            public TKey Key { get; private set; }
+            public TKey Alias { get; private set; }
+            public long NumBallsInBox { get; private set; }
+
+            public ProbabilityBox(TKey key, TKey alias, long numBallsInBox)
+                : this()
+            {
+                Key = key;
+                Alias = alias;
+                NumBallsInBox = numBallsInBox;
+            }
+        }
 
         public FastReplacementWeightedRandomizer()
         {
@@ -61,7 +62,7 @@ namespace Weighted_Randomizer
         /// <summary>
         /// Returns the number of items currently in the list
         /// </summary>
-        public int Count { get { return _weights.Keys.Count;  } }
+        public int Count { get { return _weights.Keys.Count; } }
 
         /// <summary>
         /// Remove all items from the list
@@ -90,7 +91,7 @@ namespace Weighted_Randomizer
         public void CopyTo(TKey[] array, int startingIndex)
         {
             int currentIndex = startingIndex;
-            foreach (TKey key in this)
+            foreach(TKey key in this)
             {
                 array[currentIndex] = key;
                 currentIndex++;
@@ -113,12 +114,12 @@ namespace Weighted_Randomizer
             Add(key, 1);
         }
 
-		/// <summary>
+        /// <summary>
         /// Adds the given item with the given weight.  Higher weights are more likely to be chosen.
         /// </summary>
         public void Add(TKey key, int weight)
         {
-            if (weight <= 0)
+            if(weight <= 0)
             {
                 throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight <= 0!");
             }
@@ -135,17 +136,17 @@ namespace Weighted_Randomizer
         public bool Remove(TKey key)
         {
             int weight;
-            if (!_weights.TryGetValue(key, out weight))
+            if(!_weights.TryGetValue(key, out weight))
             {
                 return false;
             }
 
             TotalWeight -= weight;
             _listNeedsRebuilding = true;
-			
-			//Preemptively clear the _probabilityBoxes list, so we don't unnecessarily hold on to unused references
-			_probabilityBoxes.Clear();
-			
+
+            //Preemptively clear the _probabilityBoxes list, so we don't unnecessarily hold on to unused references
+            _probabilityBoxes.Clear();
+
             return _weights.Remove(key);
         }
         #endregion
@@ -174,33 +175,33 @@ namespace Weighted_Randomizer
         /// </summary>
         public TKey NextWithReplacement()
         {
-            if (Count <= 0)
+            if(Count <= 0)
                 throw new InvalidOperationException("There are no items in the FastReplacementWeightedRandomizer");
 
-            if (_listNeedsRebuilding)
+            if(_listNeedsRebuilding)
             {
                 RebuildProbabilityList();
             }
 
-			//Choose a random box, then flip a biased coin (represented by choosing a number of balls within the box)
-			int randomIndex = _random.Next(_probabilityBoxes.Count);
-			long randomNumBalls = _random.NextLong(_heightPerBox) + 1;
+            //Choose a random box, then flip a biased coin (represented by choosing a number of balls within the box)
+            int randomIndex = _random.Next(_probabilityBoxes.Count);
+            long randomNumBalls = _random.NextLong(_heightPerBox) + 1;
 
-            if (randomNumBalls <= _probabilityBoxes[randomIndex].NumBallsInBox)
-			{
-				return _probabilityBoxes[randomIndex].Key;
-			}
-			else
-			{
-				return _probabilityBoxes[randomIndex].Alias;
-			}
+            if(randomNumBalls <= _probabilityBoxes[randomIndex].NumBallsInBox)
+            {
+                return _probabilityBoxes[randomIndex].Key;
+            }
+            else
+            {
+                return _probabilityBoxes[randomIndex].Alias;
+            }
         }
 
-	    private struct KeyBallsPair
-	    {
-	        public TKey Key;
-	        public long NumBalls;
-	    }
+        private struct KeyBallsPair
+        {
+            public TKey Key;
+            public long NumBalls;
+        }
 
         private void RebuildProbabilityList()
         {
@@ -210,49 +211,49 @@ namespace Weighted_Randomizer
 
             Stack<KeyBallsPair> smallStack = new Stack<KeyBallsPair>();
             Stack<KeyBallsPair> largeStack = new Stack<KeyBallsPair>();
-			_probabilityBoxes.Clear();
-			
-			//Step one:  Load the small list with all items whose total weight is less than _heightPerBox (after scaling)
-			//the large list with those that are greater.
-			foreach(TKey item in _weights.Keys)
-			{
-				long newWeight = _weights[item] * weightMultiplier;
-				if(newWeight > _heightPerBox)
-				{
-					largeStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight});
-				}
-				else
-				{
+            _probabilityBoxes.Clear();
+
+            //Step one:  Load the small list with all items whose total weight is less than _heightPerBox (after scaling)
+            //the large list with those that are greater.
+            foreach(TKey item in _weights.Keys)
+            {
+                long newWeight = _weights[item] * weightMultiplier;
+                if(newWeight > _heightPerBox)
+                {
+                    largeStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight });
+                }
+                else
+                {
                     smallStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight });
-				}
-			}
-			
-			//Step two:  Pair up each item in the large/small lists and create a probability box for them
+                }
+            }
+
+            //Step two:  Pair up each item in the large/small lists and create a probability box for them
             while(largeStack.Count != 0)
             {
                 KeyBallsPair largeItem = largeStack.Pop();
                 KeyBallsPair smallItem = smallStack.Pop();
-				_probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, largeItem.Key, smallItem.NumBalls));
-				
-				//Set the new weight for the largeList item, and move it to smallList if necessary
+                _probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, largeItem.Key, smallItem.NumBalls));
+
+                //Set the new weight for the largeList item, and move it to smallList if necessary
                 long difference = _heightPerBox - smallItem.NumBalls;
                 largeItem.NumBalls = largeItem.NumBalls - difference;
                 if(largeItem.NumBalls > _heightPerBox)
-				{
+                {
                     largeStack.Push(largeItem);
-				}
-				else
-				{
+                }
+                else
+                {
                     smallStack.Push(largeItem);
-				}
-			}
-			
-			//Step three:  All the remining items in smallList necessarily have probability of 100%
+                }
+            }
+
+            //Step three:  All the remining items in smallList necessarily have probability of 100%
             while(smallStack.Count != 0)
-			{
+            {
                 KeyBallsPair smallItem = smallStack.Pop();
-				_probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, smallItem.Key, _heightPerBox));
-			}
+                _probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, smallItem.Key, _heightPerBox));
+            }
 
             _listNeedsRebuilding = false;
         }
@@ -277,7 +278,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public TKey NextWithRemoval()
         {
-            if (Count <= 0)
+            if(Count <= 0)
                 throw new InvalidOperationException("There are no items in the FastReplacementWeightedRandomizer");
 
             TKey randomKey = NextWithReplacement();
@@ -306,8 +307,8 @@ namespace Weighted_Randomizer
         /// </summary>
         public int GetWeight(TKey key)
         {
-			int weight;
-            if (!_weights.TryGetValue(key, out weight))
+            int weight;
+            if(!_weights.TryGetValue(key, out weight))
                 throw new ArgumentException("Key not found in FastReplacementWeightedRandomizer: " + key);
             return weight;
         }
@@ -318,7 +319,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public void SetWeight(TKey key, int weight)
         {
-            if (weight <= 0)
+            if(weight <= 0)
             {
                 Remove(key);
             }
@@ -326,11 +327,11 @@ namespace Weighted_Randomizer
             {
                 _weights[key] = weight;
             }
-			else
-			{
-				Add(key, weight);
-			}
-			_listNeedsRebuilding = true;
+            else
+            {
+                Add(key, weight);
+            }
+            _listNeedsRebuilding = true;
         }
         #endregion
     }

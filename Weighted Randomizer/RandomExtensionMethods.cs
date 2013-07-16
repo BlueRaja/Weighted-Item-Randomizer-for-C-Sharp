@@ -12,7 +12,7 @@ namespace Weighted_Randomizer
         /// <param name="max">The exclusive maximum bound.  Must be greater or equal to min</param>
         public static long NextLong(this Random random, long min, long max)
         {
-            if (max < min)
+            if(max < min)
                 throw new ArgumentOutOfRangeException("max", "max must be >= min!");
 
             //Working with ulong so that modulo works correctly with values > long.MaxValue
@@ -28,7 +28,7 @@ namespace Weighted_Randomizer
                 byte[] buf = new byte[8];
                 random.NextBytes(buf);
                 ulongRand = (ulong)BitConverter.ToInt64(buf, 0);
-            } while (ulongRand > ulong.MaxValue - ((ulong.MaxValue % uRange) + 1) % uRange);
+            } while(ulongRand > ulong.MaxValue - ((ulong.MaxValue % uRange) + 1) % uRange);
 
             return (long)(ulongRand % uRange) + min;
         }

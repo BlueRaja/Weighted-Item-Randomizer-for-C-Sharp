@@ -76,13 +76,13 @@ namespace Weighted_Randomizer_Tests
             ISet<int> items = new HashSet<int>(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 
             //Add the items to target
-            foreach (int item in items)
+            foreach(int item in items)
             {
                 Target.Add(item, 1);
             }
 
             //Remove the items from target one-by-one.  Verify only *exactly* those items are removed, in any order
-            while (items.Any())
+            while(items.Any())
             {
                 int next = Target.NextWithRemoval();
                 CollectionAssert.Contains(items, next);
@@ -172,7 +172,7 @@ namespace Weighted_Randomizer_Tests
         {
             Target.Add(1, 10);
             Assert.AreEqual(10, Target.TotalWeight);
-            
+
             Target.Add(2, 10);
             Assert.AreEqual(20, Target.TotalWeight);
 
@@ -184,13 +184,13 @@ namespace Weighted_Randomizer_Tests
         public void TestEnumeration()
         {
             ISet<int> items = new HashSet<int>(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            foreach (int item in items)
+            foreach(int item in items)
             {
                 Target.Add(item);
             }
 
             //Enumeration is not ordered, so we just need to make sure that all items we added are actually in there
-            foreach (int key in Target)
+            foreach(int key in Target)
             {
                 CollectionAssert.Contains(items, key);
                 items.Remove(key);
@@ -246,9 +246,9 @@ namespace Weighted_Randomizer_Tests
             Target.Add(1, 1);
             Target.Add(2, 99);
             int oneCount = 0;
-            for (int i = 0; i < 10000; i++)
+            for(int i = 0; i < 10000; i++)
             {
-                if (Target.NextWithReplacement() == 1)
+                if(Target.NextWithReplacement() == 1)
                     oneCount++;
             }
 
@@ -263,9 +263,9 @@ namespace Weighted_Randomizer_Tests
             Target.Add(1, 1);
             Target.Add(2, 1);
             int oneCount = 0;
-            for (int i = 0; i < 10000; i++)
+            for(int i = 0; i < 10000; i++)
             {
-                if (Target.NextWithReplacement() == 1)
+                if(Target.NextWithReplacement() == 1)
                     oneCount++;
             }
 
