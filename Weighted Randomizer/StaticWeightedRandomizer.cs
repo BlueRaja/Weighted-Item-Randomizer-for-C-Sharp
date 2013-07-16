@@ -12,7 +12,7 @@ namespace Weighted_Randomizer
     /// It is slow when making making calls to NextWithRemoval(), or when adding/removing/updating items often between calls to NextWithReplacement().
     /// </summary>
     /// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
-    public class FastReplacementWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
+    public class StaticWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
     {
         private readonly ThreadSafeRandom _random;
         private readonly Dictionary<TKey, int> _weights;
@@ -42,7 +42,7 @@ namespace Weighted_Randomizer
             }
         }
 
-        public FastReplacementWeightedRandomizer()
+        public StaticWeightedRandomizer()
         {
             _random = new ThreadSafeRandom();
             _weights = new Dictionary<TKey, int>();
@@ -53,7 +53,7 @@ namespace Weighted_Randomizer
             _heightPerBox = 0;
         }
 
-        //public FastReplacementWeightedRandomizer(int seed)
+        //public StaticWeightedRandomizer(int seed)
         //{
         //    random = new ThreadSafeRandom(seed);
         //}
@@ -176,7 +176,7 @@ namespace Weighted_Randomizer
         public TKey NextWithReplacement()
         {
             if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the FastReplacementWeightedRandomizer");
+                throw new InvalidOperationException("There are no items in the StaticWeightedRandomizer");
 
             if(_listNeedsRebuilding)
             {
@@ -279,7 +279,7 @@ namespace Weighted_Randomizer
         public TKey NextWithRemoval()
         {
             if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the FastReplacementWeightedRandomizer");
+                throw new InvalidOperationException("There are no items in the StaticWeightedRandomizer");
 
             TKey randomKey = NextWithReplacement();
             Remove(randomKey);
@@ -309,7 +309,7 @@ namespace Weighted_Randomizer
         {
             int weight;
             if(!_weights.TryGetValue(key, out weight))
-                throw new ArgumentException("Key not found in FastReplacementWeightedRandomizer: " + key);
+                throw new ArgumentException("Key not found in StaticWeightedRandomizer: " + key);
             return weight;
         }
 

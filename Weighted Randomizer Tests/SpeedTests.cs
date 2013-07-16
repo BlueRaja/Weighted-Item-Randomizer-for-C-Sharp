@@ -14,13 +14,13 @@ namespace Weighted_Randomizer_Tests
         public static void Main(string[] args)
         {
             Console.WriteLine("Warming up, please wait...");
-            TestSpeed(new FastRemovalWeightedRandomizer<int>(), false);
-            TestSpeed(new FastReplacementWeightedRandomizer<int>(), false);
+            TestSpeed(new DynamicWeightedRandomizer<int>(), false);
+            TestSpeed(new StaticWeightedRandomizer<int>(), false);
             Console.Clear();
 
             //Above lines are to force JIT to kick in.  Below two lines are the REAL benchmark:
-            TestSpeed(new FastRemovalWeightedRandomizer<int>(), true);
-            TestSpeed(new FastReplacementWeightedRandomizer<int>(), true);
+            TestSpeed(new DynamicWeightedRandomizer<int>(), true);
+            TestSpeed(new StaticWeightedRandomizer<int>(), true);
 
             Console.WriteLine("Complete!");
             Console.ReadKey();
@@ -28,7 +28,7 @@ namespace Weighted_Randomizer_Tests
             /*
             Example output:
             
-            Testing FastRemovalWeightedRandomizer`1
+            Testing DynamicWeightedRandomizer`1
             --------------------------------
             Add()x10000 + NextWithReplacement()x10: 4 ms
             Add()x10000 + NextWithReplacement()x10000: 7 ms
@@ -37,7 +37,7 @@ namespace Weighted_Randomizer_Tests
             Add()x10000 + NextWithRemoval()x10000: 10 ms
 
 
-            Testing FastReplacementWeightedRandomizer`1
+            Testing StaticWeightedRandomizer`1
             --------------------------------
             Add()x10000 + NextWithReplacement()x10: 2 ms
             Add()x10000 + NextWithReplacement()x10000: 4 ms

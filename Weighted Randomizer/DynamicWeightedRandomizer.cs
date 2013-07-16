@@ -9,7 +9,7 @@ namespace Weighted_Randomizer
     /// Adding/removing/updating items, and calls to both NextWithRemoval() and NextWithReplacement(), and are relatively fast (O(log n))
     /// </summary>
     /// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
-    public class FastRemovalWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
+    public class DynamicWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
         where TKey : IComparable<TKey>
     {
         private readonly Node _sentinel;
@@ -17,14 +17,14 @@ namespace Weighted_Randomizer
         private Node _root;
         private Node _deleted;
 
-        public FastRemovalWeightedRandomizer()
+        public DynamicWeightedRandomizer()
         {
             _root = _sentinel = new Node();
             _deleted = null;
             _random = new ThreadSafeRandom();
         }
 
-        //public FastRemovalWeightedRandomizer(int seed)
+        //public DynamicWeightedRandomizer(int seed)
         //{
         //    root = sentinel = new Node();
         //    deleted = null;
@@ -137,7 +137,7 @@ namespace Weighted_Randomizer
             }
             else
             {
-                throw new ArgumentException("Key already exists in FastRemovalWeightedRandomizer: " + key.ToString());
+                throw new ArgumentException("Key already exists in DynamicWeightedRandomizer: " + key.ToString());
             }
 
             RotateRight(ref node);
@@ -398,7 +398,7 @@ namespace Weighted_Randomizer
         public TKey NextWithReplacement()
         {
             if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the FastRemovalWeightedRandomizer");
+                throw new InvalidOperationException("There are no items in the DynamicWeightedRandomizer");
 
             Node currentNode = _root;
             long randomNumber = _random.NextLong(0, TotalWeight) + 1;  //[1, TotalWeight] inclusive
@@ -431,7 +431,7 @@ namespace Weighted_Randomizer
         public TKey NextWithRemoval()
         {
             if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the FastRemovalWeightedRandomizer");
+                throw new InvalidOperationException("There are no items in the DynamicWeightedRandomizer");
 
             TKey randomKey = NextWithReplacement();
             Remove(randomKey);
@@ -461,7 +461,7 @@ namespace Weighted_Randomizer
         {
             Node node = FindNode(_root, key);
             if(node == null)
-                throw new ArgumentException("Key not found in FastRemovalWeightedRandomizer: " + key);
+                throw new ArgumentException("Key not found in DynamicWeightedRandomizer: " + key);
             return node.weight;
         }
 

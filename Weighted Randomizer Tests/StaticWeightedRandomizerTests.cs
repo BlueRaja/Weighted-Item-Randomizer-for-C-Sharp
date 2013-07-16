@@ -9,12 +9,12 @@ using Weighted_Randomizer;
 namespace Weighted_Randomizer_Tests
 {
     [TestFixture]
-    public class FastRemovalWeightedRandomizerTests : WeightedRandomizerTestsBase
+    public class StaticWeightedRandomizerTests : WeightedRandomizerTestsBase
     {
         [SetUp]
         public void Setup()
         {
-            Target = new FastRemovalWeightedRandomizer<int>();
+            Target = new StaticWeightedRandomizer<int>();
         }
     }
 }

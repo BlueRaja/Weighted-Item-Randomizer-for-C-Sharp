@@ -55,12 +55,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FastReplacementWeightedRandomizer.cs" />
+    <Compile Include="StaticWeightedRandomizer.cs" />
     <Compile Include="IWeightedRandomizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomExtensionMethods.cs" />
     <Compile Include="ThreadSafeRandom.cs" />
-    <Compile Include="FastRemovalWeightedRandomizer.cs" />
+    <Compile Include="DynamicWeightedRandomizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
