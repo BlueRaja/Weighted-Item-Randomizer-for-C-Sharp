@@ -7,15 +7,39 @@ using System.Threading.Tasks;
 
 namespace Weighted_Randomizer
 {
-    class FastReplacementWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
+	/// <summary>
+	/// A weighted randomizer implementation which uses Vose's alias method.  It is very fast when doing many contiguous calls to NextWithReplacement().
+	/// It is slow when making making calls to NextWithRemoval(), or when adding/removing/updating items often between calls to NextWithReplacement().
+	/// </summary>
+	/// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
+    public class FastReplacementWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
     {
         private readonly ThreadSafeRandom _random;
         private readonly Dictionary<TKey, int> _weights;
         private bool _listNeedsRebuilding;
-
-        private readonly IList<TKey> _probabilityBoxes;
-        private readonly IList<TKey> _aliases;
+		
+		private readonly IList<ProbabilityBox> _probabilityBoxes;
         private long _heightPerBox;
+		
+		/// <summary>
+		/// The discrete boxes used to hold the keys/aliases in Vose's alias method.  Since we're using integers rather than floating-point
+		/// probabilities, I've chosen the word "balls" for the value of the coin-flip used to determine whether to choose the key or the alias
+		/// from the box.  If the number of balls chosen (taken from 1 to _heightPerBox) is <= NumBallsInBox, we choose the Key; otherwise,
+		/// we choose the Alias.  Thus, there is exactly a NumBallsInBox/_heightPerBox probability of choosing the Key.
+		/// </summary>
+		private struct ProbabilityBox
+		{
+			public TKey Key { get; private set; }
+			public TKey Alias { get; private set; }
+			public long NumBallsInBox { get; private set; }
+			
+			public ProbabilityBox(TKey key, TKey alias, long numBallsInBox) : this()
+			{
+				Key = key;
+				Alias = alias;
+				NumBallsInBox = numBallsInBox;
+			}
+		}
 
         public FastReplacementWeightedRandomizer()
         {
@@ -24,8 +48,7 @@ namespace Weighted_Randomizer
             _listNeedsRebuilding = true;
             TotalWeight = 0;
 
-            _probabilityBoxes = new List<TKey>();
-            _aliases = new List<TKey>();
+            _probabilityBoxes = new List<ProbabilityBox>();
             _heightPerBox = 0;
         }
 
@@ -47,6 +70,7 @@ namespace Weighted_Randomizer
         {
             _weights.Clear();
             _listNeedsRebuilding = true;
+            TotalWeight = 0;
         }
 
         /// <summary>
@@ -89,11 +113,16 @@ namespace Weighted_Randomizer
             Add(key, 1);
         }
 
-        /// <summary>
-        /// Adds the given item with the given weight
+		/// <summary>
+        /// Adds the given item with the given weight.  Higher weights are more likely to be chosen.
         /// </summary>
         public void Add(TKey key, int weight)
         {
+            if (weight <= 0)
+            {
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight <= 0!");
+            }
+
             _weights.Add(key, weight);
             _listNeedsRebuilding = true;
             TotalWeight += weight;
@@ -113,6 +142,10 @@ namespace Weighted_Randomizer
 
             TotalWeight -= weight;
             _listNeedsRebuilding = true;
+			
+			//Preemptively clear the _probabilityBoxes list, so we don't unnecessarily hold on to unused references
+			_probabilityBoxes.Clear();
+			
             return _weights.Remove(key);
         }
         #endregion
@@ -149,21 +182,79 @@ namespace Weighted_Randomizer
                 RebuildProbabilityList();
             }
 
-            //TODO:
+			//Choose a random box, then flip a biased coin (represented by choosing a number of balls within the box)
+			int randomIndex = _random.Next(_probabilityBoxes.Count);
+			long randomNumBalls = _random.NextLong(_heightPerBox) + 1;
+
+            if (randomNumBalls <= _probabilityBoxes[randomIndex].NumBallsInBox)
+			{
+				return _probabilityBoxes[randomIndex].Key;
+			}
+			else
+			{
+				return _probabilityBoxes[randomIndex].Alias;
+			}
         }
 
         private void RebuildProbabilityList()
         {
-            long weightMultiplier = CalculateWeightMultiplier();
-            _heightPerBox = weightMultiplier*TotalWeight/Count;
+            long gcd = GreatestCommonDenominator(Count, TotalWeight);
+            long weightMultiplier = Count / gcd;
+            _heightPerBox = TotalWeight / gcd;
 
-        }
+            Dictionary<TKey, long> smallList = new Dictionary<TKey, long>();
+            Dictionary<TKey, long> largeList = new Dictionary<TKey, long>();
+			_probabilityBoxes.Clear();
+			
+			//Step one:  Load the small list with all items whose total weight is less than _heightPerBox (after scaling)
+			//the large list with those that are greater.
+			foreach(TKey item in _weights.Keys)
+			{
+				long newWeight = _weights[item] * weightMultiplier;
+				if(newWeight > _heightPerBox)
+				{
+					largeList.Add(item, newWeight);
+				}
+				else
+				{
+					smallList.Add(item, newWeight);
+				}
+			}
+			
+			//Step two:  Pair up each item in the large/small lists and create a probability box for them
+			while(largeList.Count != 0)
+			{
+				TKey largeItem = largeList.Keys.First();
+				TKey smallItem = smallList.Keys.First();
+				long smallItemWeight = smallList[smallItem];
+				_probabilityBoxes.Add(new ProbabilityBox(smallItem, largeItem, smallItemWeight));
+				
+				//Remove the smallItem, since all of its balls have been used up
+				smallList.Remove(smallItem);
+				
+				//Set the new weight for the largeList item, and move it to smallList if necessary
+				long difference = _heightPerBox - smallItemWeight;
+				long newLargeWeight = largeList[largeItem] - difference;
+				if(newLargeWeight > _heightPerBox)
+				{
+					largeList[largeItem] = newLargeWeight;
+				}
+				else
+				{
+					largeList.Remove(largeItem);
+					smallList.Add(largeItem, newLargeWeight);
+				}
+			}
+			
+			//Step three:  All the remining items in smallList necessarily have probability of 100%
+			while(smallList.Any())
+			{
+				TKey smallItem = smallList.Keys.First();
+				_probabilityBoxes.Add(new ProbabilityBox(smallItem, smallItem, _heightPerBox));
+				smallList.Remove(smallItem);
+			}
 
-        private long CalculateWeightMultiplier()
-        {
-            //We want the height of each box to be some multiple of the average which is whole number.
-            //Since the average is TotalWeight/Count, we need to multiply it by Count/gcd(Count,TotalWeight)
-            return (Count / GreatestCommonDenominator(Count, TotalWeight));
+            _listNeedsRebuilding = false;
         }
 
         private static long GreatestCommonDenominator(long a, long b)
@@ -215,10 +306,10 @@ namespace Weighted_Randomizer
         /// </summary>
         public int GetWeight(TKey key)
         {
-            Node node = FindNode(root, key);
-            if (node == null)
-                throw new ArgumentException("Key not found in FastRemovalWeightedRandomizer: " + key);
-            return node.weight;
+			int weight;
+            if (!_weights.TryGetValue(key, out weight))
+                throw new ArgumentException("Key not found in FastReplacementWeightedRandomizer: " + key);
+            return weight;
         }
 
         /// <summary>
@@ -231,83 +322,15 @@ namespace Weighted_Randomizer
             {
                 Remove(key);
             }
-            else
+            else if(Contains(key))
             {
-                Node node = FindNode(root, key);
-                if (node == null)
-                {
-                    Add(key, weight);
-                }
-                else
-                {
-                    int weightDelta = weight - node.weight;
-
-                    //This is a hack.  The point is to update this node's and all it's ancestors' subtreeWeights.
-                    //We already have a method that will do that; however, it uses the value of node.weight, rather
-                    //than a parameter.
-                    node.weight = weightDelta;
-                    UpdateSubtreeWeightsForInsertion(node);
-                    
-                    //Finally, set the node.weight to what it should be
-                    node.weight = weight;
-                    node.subtreeWeight += weightDelta;
-
-#if DEBUG //TODO: DELETE
-                    DebugCheckTree();
-#endif
-                }
+                _weights[key] = weight;
             }
-        }
-        #endregion
-
-        #region Debugging code
-        /// <summary>
-        /// Returns the height of the tree (very slow)
-        /// </summary>
-        private int Height
-        {
-            get
-            {
-                return GetNumLayers(root);
-            }
-        }
-
-        private int GetNumLayers(Node node)
-        {
-            if (node == null || node == sentinel)
-                return 0;
-            return Math.Max(GetNumLayers(node.left), GetNumLayers(node.right)) + 1;
-        }
-
-        /// <summary>
-        /// Quick hack to write quick tests
-        /// </summary>
-        private void Assert(bool condition)
-        {
-            if (!condition)
-                throw new ArgumentException("Test case failed");
-        }
-
-        /// <summary>
-        /// Make sure the entire tree is valid (correct subtreeWeights, valid BST, that sort of thing)
-        /// </summary>
-        private void DebugCheckTree()
-        {
-            DebugCheckNode(root);
-            Assert(Count == 0 || Height <= 2 * Math.Ceiling(Math.Log(Count, 2) + 1));
-        }
-
-        private void DebugCheckNode(Node node)
-        {
-            if (node == null || node == sentinel)
-                return;
-
-            Assert(node.left == null || node.left == sentinel || node.left.key.CompareTo(node.key) < 0);
-            Assert(node.right == null || node.right == sentinel || node.right.key.CompareTo(node.key) > 0);
-            Assert(node.left.subtreeWeight + node.right.subtreeWeight + node.weight == node.subtreeWeight);
-
-            DebugCheckNode(node.left);
-            DebugCheckNode(node.right);
+			else
+			{
+				Add(key, weight);
+			}
+			_listNeedsRebuilding = true;
         }
         #endregion
     }

@@ -5,9 +5,8 @@ using System.Collections;
 namespace Weighted_Randomizer
 {
     /// <summary>
-    /// A class which constructs a tree of weighted objects.  Once constructed, the caller can choose one at random random
-    /// (by weight, so higher- weighted items are more likely to be chosen), with or without replacement; add new objects; 
-    /// remove objects; update the weight of objects; and check for objects within the list.  All of these operations are O(log n).
+    /// A implementation of a weighted randomizer which uses (for lack of a better term) a weighted self-balancing binary tree.
+	/// Adding/removing/updating items, and calls to both NextWithRemoval() and NextWithReplacement(), and are relatively fast (O(log n))
     /// </summary>
     /// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
     public class FastRemovalWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
@@ -114,6 +113,11 @@ namespace Weighted_Randomizer
 
         private void InsertNode(ref Node node, TKey key, int weight)
         {
+            if (weight <= 0)
+            {
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight <= 0!");
+            }
+
             if (node == _sentinel)
             {
                 node = new Node(key, weight, _sentinel);
@@ -279,6 +283,7 @@ namespace Weighted_Randomizer
         public void Clear()
         {
             _root = _sentinel;
+            Count = 0;
         }
 
         /// <summary>
@@ -322,8 +327,8 @@ namespace Weighted_Randomizer
             InsertNode(ref _root, key, 1);
         }
 
-        /// <summary>
-        /// Adds the given item with the given weight
+		/// <summary>
+        /// Adds the given item with the given weight.  Higher weights are more likely to be chosen.
         /// </summary>
         public void Add(TKey key, int weight)
         {
