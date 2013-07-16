@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomizer VS 2012 Solution", "Weighted Randomizer VS 2012 Solution.csproj", "{04B4DB30-E937-43C8-8AA1-49FD6D4D11D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomizer", "Weighted Randomizer\Weighted Randomizer.csproj", "{1245BC96-2F42-404C-9F11-65A4326299D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomizer Tests", "Weighted Randomizer Tests\Weighted Randomizer Tests.csproj", "{D6124895-8A5E-41B1-898C-CB95AA9C7218}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +11,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{04B4DB30-E937-43C8-8AA1-49FD6D4D11D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04B4DB30-E937-43C8-8AA1-49FD6D4D11D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04B4DB30-E937-43C8-8AA1-49FD6D4D11D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04B4DB30-E937-43C8-8AA1-49FD6D4D11D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1245BC96-2F42-404C-9F11-65A4326299D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1245BC96-2F42-404C-9F11-65A4326299D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1245BC96-2F42-404C-9F11-65A4326299D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1245BC96-2F42-404C-9F11-65A4326299D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6124895-8A5E-41B1-898C-CB95AA9C7218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6124895-8A5E-41B1-898C-CB95AA9C7218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6124895-8A5E-41B1-898C-CB95AA9C7218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6124895-8A5E-41B1-898C-CB95AA9C7218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
