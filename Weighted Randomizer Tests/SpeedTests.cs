@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using Weighted_Randomizer;
@@ -12,75 +13,162 @@ namespace Weighted_Randomizer_Tests
     {
         public static void Main(string[] args)
         {
-            TestSpeed(new FastRemovalWeightedRandomizer<int>());
-            TestSpeed(new FastReplacementWeightedRandomizer<int>());
+            Console.WriteLine("Warming up, please wait...");
+            TestSpeed(new FastRemovalWeightedRandomizer<int>(), false);
+            TestSpeed(new FastReplacementWeightedRandomizer<int>(), false);
+            Console.Clear();
 
+            //Above lines are to force JIT to kick in.  Below two lines are the REAL benchmark:
+            TestSpeed(new FastRemovalWeightedRandomizer<int>(), true);
+            TestSpeed(new FastReplacementWeightedRandomizer<int>(), true);
+
+            Console.WriteLine("Complete!");
             Console.ReadKey();
+
+            /*
+            Example output:
+            
+            Testing FastRemovalWeightedRandomizer`1
+            --------------------------------
+            Add()x10000 + NextWithReplacement()x10: 4 ms
+            Add()x10000 + NextWithReplacement()x10000: 7 ms
+            Add()x10000 + NextWithReplacement()x100000: 35 ms
+            ( Add() + NextWithReplacement() )x10000 (interleaved): 8 ms
+            Add()x10000 + NextWithRemoval()x10000: 10 ms
+
+
+            Testing FastReplacementWeightedRandomizer`1
+            --------------------------------
+            Add()x10000 + NextWithReplacement()x10: 2 ms
+            Add()x10000 + NextWithReplacement()x10000: 4 ms
+            Add()x10000 + NextWithReplacement()x100000: 28 ms
+            ( Add() + NextWithReplacement() )x10000 (interleaved): 5403 ms
+            Add()x10000 + NextWithRemoval()x10000: 5948 ms
+            */
         }
 
-        private static void TestSpeed(IWeightedRandomizer<int> randomizer)
+        private static void TestSpeed(IWeightedRandomizer<int> randomizer, bool displayText)
         {
-            const int numIterations = 10000;
-            Stopwatch timer = new Stopwatch();
-            Console.WriteLine("Testing {0}:", randomizer.GetType().Name);
+            GCLatencyMode oldLatencyMode = GCSettings.LatencyMode;
 
-            //Adding items (ordered)
-            timer.Reset();
-            timer.Start();
-            for (int i = 1; i <= numIterations; i++)
+            try
             {
-                randomizer.Add(i, i);
-            }
-            timer.Stop();
-            Console.WriteLine("Adding {0} items (ordered): {1} ms", numIterations, timer.ElapsedMilliseconds);
+                //Prevent garbage collection during tests
+                GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
-            //Adding items (unordered)
-            randomizer.Clear();
-            timer.Reset();
-            timer.Start();
-            int cheapPrng = 1;
-            for (int i = 1; i <= numIterations; i++)
+                const int numIterations = 10000;
+                Stopwatch timer = new Stopwatch();
+                if (displayText)
+                {
+                    Console.WriteLine("Testing {0}", randomizer.GetType().Name);
+                    Console.WriteLine("--------------------------------");
+                }
+
+                //NextWithReplacement()/1000
+                randomizer.Clear();
+                timer.Reset();
+                timer.Start();
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.Add(i, i);
+                }
+                for (int i = 1; i <= numIterations/1000; i++)
+                {
+                    randomizer.NextWithReplacement();
+                }
+                timer.Stop();
+                GC.Collect();
+                if (displayText)
+                {
+                    Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, numIterations/1000,
+                        timer.ElapsedMilliseconds);
+                }
+
+                //NextWithReplacement()
+                randomizer.Clear();
+                timer.Reset();
+                timer.Start();
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.Add(i, i);
+                }
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.NextWithReplacement();
+                }
+                timer.Stop();
+                GC.Collect();
+                if (displayText)
+                {
+                    Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, numIterations,
+                        timer.ElapsedMilliseconds);
+                }
+
+                //NextWithReplacement() * 10
+                randomizer.Clear();
+                timer.Reset();
+                timer.Start();
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.Add(i, i);
+                }
+                for (int i = 1; i <= 10*numIterations; i++)
+                {
+                    randomizer.NextWithReplacement();
+                }
+                timer.Stop();
+                GC.Collect();
+                if (displayText)
+                {
+                    Console.WriteLine("Add()x{0} + NextWithReplacement()x{1}: {2} ms", numIterations, 10 * numIterations,
+                        timer.ElapsedMilliseconds);
+                }
+
+                //NextWithReplacement() (interleaved)
+                randomizer.Clear();
+                timer.Reset();
+                timer.Start();
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.Add(i, i);
+                    randomizer.NextWithReplacement();
+                }
+                timer.Stop();
+                GC.Collect();
+                if (displayText)
+                {
+                    Console.WriteLine("( Add() + NextWithReplacement() )x{0} (interleaved): {1} ms", numIterations,
+                        timer.ElapsedMilliseconds);
+                }
+
+                //NextWithRemoval()
+                randomizer.Clear();
+                timer.Reset();
+                timer.Start();
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.Add(i, i);
+                }
+                for (int i = 1; i <= numIterations; i++)
+                {
+                    randomizer.NextWithRemoval();
+                }
+                timer.Stop();
+                GC.Collect();
+                if (displayText)
+                {
+                    Console.WriteLine("Add()x{0} + NextWithRemoval()x{1}: {2} ms", numIterations, numIterations,
+                        timer.ElapsedMilliseconds);
+
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+            } //end try
+            finally
             {
-                cheapPrng = (22695477*cheapPrng+1)&0x7FFFFFFF;
-                randomizer.Add(i, cheapPrng);
+                // ALWAYS set the latency mode back
+                GCSettings.LatencyMode = oldLatencyMode;
             }
-            timer.Stop();
-            Console.WriteLine("Adding {0} items (unordered): {1} ms", numIterations, timer.ElapsedMilliseconds);
-
-            //NextWithReplacement()
-            timer.Reset();
-            timer.Start();
-            for (int i = 1; i <= numIterations; i++)
-            {
-                randomizer.NextWithReplacement();
-            }
-            timer.Stop();
-            Console.WriteLine("NextWithReplacement() {0} times: {1} ms", numIterations, timer.ElapsedMilliseconds);
-
-            //NextWithRemoval()
-            timer.Reset();
-            timer.Start();
-            for (int i = 1; i <= numIterations; i++)
-            {
-                randomizer.NextWithRemoval();
-            }
-            timer.Stop();
-            Console.WriteLine("NextWithRemoval() {0} times: {1} ms", numIterations, timer.ElapsedMilliseconds);
-
-            //NextWithReplacement()
-            randomizer.Clear();
-            timer.Reset();
-            timer.Start();
-            for (int i = 1; i <= numIterations; i++)
-            {
-                randomizer.Add(i, i);
-                randomizer.NextWithReplacement();
-            }
-            timer.Stop();
-            Console.WriteLine("Add() + NextWithReplacement() (interleaved) {0} times: {1} ms", numIterations, timer.ElapsedMilliseconds);
-
-
-            Console.WriteLine();
         }
     }
 }

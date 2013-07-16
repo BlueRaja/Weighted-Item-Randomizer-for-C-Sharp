@@ -196,14 +196,20 @@ namespace Weighted_Randomizer
 			}
         }
 
+	    private struct KeyBallsPair
+	    {
+	        public TKey Key;
+	        public long NumBalls;
+	    }
+
         private void RebuildProbabilityList()
         {
             long gcd = GreatestCommonDenominator(Count, TotalWeight);
             long weightMultiplier = Count / gcd;
             _heightPerBox = TotalWeight / gcd;
 
-            Dictionary<TKey, long> smallList = new Dictionary<TKey, long>();
-            Dictionary<TKey, long> largeList = new Dictionary<TKey, long>();
+            Stack<KeyBallsPair> smallStack = new Stack<KeyBallsPair>();
+            Stack<KeyBallsPair> largeStack = new Stack<KeyBallsPair>();
 			_probabilityBoxes.Clear();
 			
 			//Step one:  Load the small list with all items whose total weight is less than _heightPerBox (after scaling)
@@ -213,45 +219,39 @@ namespace Weighted_Randomizer
 				long newWeight = _weights[item] * weightMultiplier;
 				if(newWeight > _heightPerBox)
 				{
-					largeList.Add(item, newWeight);
+					largeStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight});
 				}
 				else
 				{
-					smallList.Add(item, newWeight);
+                    smallStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight });
 				}
 			}
 			
 			//Step two:  Pair up each item in the large/small lists and create a probability box for them
-			while(largeList.Count != 0)
-			{
-				TKey largeItem = largeList.Keys.First();
-				TKey smallItem = smallList.Keys.First();
-				long smallItemWeight = smallList[smallItem];
-				_probabilityBoxes.Add(new ProbabilityBox(smallItem, largeItem, smallItemWeight));
-				
-				//Remove the smallItem, since all of its balls have been used up
-				smallList.Remove(smallItem);
+            while(largeStack.Count != 0)
+            {
+                KeyBallsPair largeItem = largeStack.Pop();
+                KeyBallsPair smallItem = smallStack.Pop();
+				_probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, largeItem.Key, smallItem.NumBalls));
 				
 				//Set the new weight for the largeList item, and move it to smallList if necessary
-				long difference = _heightPerBox - smallItemWeight;
-				long newLargeWeight = largeList[largeItem] - difference;
-				if(newLargeWeight > _heightPerBox)
+                long difference = _heightPerBox - smallItem.NumBalls;
+                largeItem.NumBalls = largeItem.NumBalls - difference;
+                if(largeItem.NumBalls > _heightPerBox)
 				{
-					largeList[largeItem] = newLargeWeight;
+                    largeStack.Push(largeItem);
 				}
 				else
 				{
-					largeList.Remove(largeItem);
-					smallList.Add(largeItem, newLargeWeight);
+                    smallStack.Push(largeItem);
 				}
 			}
 			
 			//Step three:  All the remining items in smallList necessarily have probability of 100%
-			while(smallList.Any())
+            while(smallStack.Count != 0)
 			{
-				TKey smallItem = smallList.Keys.First();
-				_probabilityBoxes.Add(new ProbabilityBox(smallItem, smallItem, _heightPerBox));
-				smallList.Remove(smallItem);
+                KeyBallsPair smallItem = smallStack.Pop();
+				_probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, smallItem.Key, _heightPerBox));
 			}
 
             _listNeedsRebuilding = false;
