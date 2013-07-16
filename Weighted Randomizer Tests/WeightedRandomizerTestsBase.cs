@@ -121,6 +121,23 @@ namespace Weighted_Randomizer_Tests
         }
 
         [Test]
+        public void TestSetWeightAdds()
+        {
+            Target.SetWeight(1, 10);
+            Assert.AreEqual(1, Target.Count);
+            Assert.AreEqual(10, Target.GetWeight(1));
+        }
+
+        [Test]
+        public void TestSetWeightUpdates()
+        {
+            Target.Add(1, 5);
+            Target.SetWeight(1, 10);
+            Assert.AreEqual(1, Target.Count);
+            Assert.AreEqual(10, Target.GetWeight(1));
+        }
+
+        [Test]
         public void TestIndexingNotation()
         {
             Target.Add(1, 10);
@@ -281,7 +298,5 @@ namespace Weighted_Randomizer_Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, -1));
             Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, 0));
         }
-
-        //TODO: Make sure SetWeight() works in all the other cases it's supposed to work in
     }
 }
