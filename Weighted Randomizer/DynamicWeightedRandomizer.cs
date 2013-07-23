@@ -13,23 +13,29 @@ namespace Weighted_Randomizer
         where TKey : IComparable<TKey>
     {
         private readonly Node _sentinel;
-        private readonly ThreadSafeRandom _random;
+        private readonly ThreadAwareRandom _random;
         private Node _root;
         private Node _deleted;
 
+        /// <summary>
+        /// Create a new DynamicWeightedRandomizer
+        /// </summary>
         public DynamicWeightedRandomizer()
         {
             _root = _sentinel = new Node();
             _deleted = null;
-            _random = new ThreadSafeRandom();
+            _random = new ThreadAwareRandom();
         }
 
-        //public DynamicWeightedRandomizer(int seed)
-        //{
-        //    root = sentinel = new Node();
-        //    deleted = null;
-        //    random = new ThreadSafeRandom(seed);
-        //}
+        /// <summary>
+        /// Create a new DynamicWeightedRandomizer with the given seed
+        /// </summary>
+        public DynamicWeightedRandomizer(int seed)
+        {
+            _root = _sentinel = new Node();
+            _deleted = null;
+            _random = new ThreadAwareRandom(seed);
+        }
 
         #region Node class
         private class Node

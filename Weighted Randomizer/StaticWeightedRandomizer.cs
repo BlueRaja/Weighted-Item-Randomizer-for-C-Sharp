@@ -14,7 +14,7 @@ namespace Weighted_Randomizer
     /// <typeparam name="TKey">The type of the objects to choose at random</typeparam>
     public class StaticWeightedRandomizer<TKey> : IWeightedRandomizer<TKey>
     {
-        private readonly ThreadSafeRandom _random;
+        private readonly ThreadAwareRandom _random;
         private readonly Dictionary<TKey, int> _weights;
         private bool _listNeedsRebuilding;
 
@@ -42,9 +42,23 @@ namespace Weighted_Randomizer
             }
         }
 
-        public StaticWeightedRandomizer()
+        /// <summary>
+        /// Create a new StaticWeightedRandomizer
+        /// </summary>
+        public StaticWeightedRandomizer() : this(new ThreadAwareRandom()) { }
+
+        /// <summary>
+        /// Create a new StaticWeightedRandomizer with the given seed
+        /// </summary>
+        public StaticWeightedRandomizer(int seed) : this(new ThreadAwareRandom(seed)) {}
+
+        /// <summary>
+        /// A quick hack that allows me to share code between the two constructors but still set
+        /// readonly fields
+        /// </summary>
+        private StaticWeightedRandomizer(ThreadAwareRandom random)
         {
-            _random = new ThreadSafeRandom();
+            _random = random;
             _weights = new Dictionary<TKey, int>();
             _listNeedsRebuilding = true;
             TotalWeight = 0;
@@ -52,11 +66,6 @@ namespace Weighted_Randomizer
             _probabilityBoxes = new List<ProbabilityBox>();
             _heightPerBox = 0;
         }
-
-        //public StaticWeightedRandomizer(int seed)
-        //{
-        //    random = new ThreadSafeRandom(seed);
-        //}
 
         #region ICollection<T> stuff
         /// <summary>
