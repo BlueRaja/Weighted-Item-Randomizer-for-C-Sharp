@@ -220,25 +220,41 @@ namespace Weighted_Randomizer
 
             Stack<KeyBallsPair> smallStack = new Stack<KeyBallsPair>();
             Stack<KeyBallsPair> largeStack = new Stack<KeyBallsPair>();
-            _probabilityBoxes.Clear();
 
-            //Step one:  Load the small list with all items whose total weight is less than _heightPerBox (after scaling)
-            //the large list with those that are greater.
-            foreach(TKey item in _weights.Keys)
+            DistributeKeysIntoStacks(weightMultiplier, largeStack, smallStack);
+            CreateSplitProbabilityBoxes(largeStack, smallStack);
+            AddRemainingProbabilityBoxes(smallStack);
+
+            _listNeedsRebuilding = false;
+        }
+
+        /// <summary>
+        /// Step one:  Load the small list with all items whose total weight is less than _heightPerBox (after scaling)
+        /// the large list with those that are greater.
+        /// </summary>
+        private void DistributeKeysIntoStacks(long weightMultiplier, Stack<KeyBallsPair> largeStack, Stack<KeyBallsPair> smallStack)
+        {
+            _probabilityBoxes.Clear();
+            foreach (TKey item in _weights.Keys)
             {
-                long newWeight = _weights[item] * weightMultiplier;
-                if(newWeight > _heightPerBox)
+                long newWeight = _weights[item]*weightMultiplier;
+                if (newWeight > _heightPerBox)
                 {
-                    largeStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight });
+                    largeStack.Push(new KeyBallsPair {Key = item, NumBalls = newWeight});
                 }
                 else
                 {
-                    smallStack.Push(new KeyBallsPair { Key = item, NumBalls = newWeight });
+                    smallStack.Push(new KeyBallsPair {Key = item, NumBalls = newWeight});
                 }
             }
+        }
 
-            //Step two:  Pair up each item in the large/small lists and create a probability box for them
-            while(largeStack.Count != 0)
+        /// <summary>
+        /// Step two:  Pair up each item in the large/small lists and create a probability box for them
+        /// </summary>
+        private void CreateSplitProbabilityBoxes(Stack<KeyBallsPair> largeStack, Stack<KeyBallsPair> smallStack)
+        {
+            while (largeStack.Count != 0)
             {
                 KeyBallsPair largeItem = largeStack.Pop();
                 KeyBallsPair smallItem = smallStack.Pop();
@@ -247,7 +263,7 @@ namespace Weighted_Randomizer
                 //Set the new weight for the largeList item, and move it to smallList if necessary
                 long difference = _heightPerBox - smallItem.NumBalls;
                 largeItem.NumBalls = largeItem.NumBalls - difference;
-                if(largeItem.NumBalls > _heightPerBox)
+                if (largeItem.NumBalls > _heightPerBox)
                 {
                     largeStack.Push(largeItem);
                 }
@@ -256,15 +272,18 @@ namespace Weighted_Randomizer
                     smallStack.Push(largeItem);
                 }
             }
+        }
 
-            //Step three:  All the remining items in smallList necessarily have probability of 100%
-            while(smallStack.Count != 0)
+        /// <summary>
+        /// Step three:  All the remining items in smallList necessarily have probability of 100%
+        /// </summary>
+        private void AddRemainingProbabilityBoxes(Stack<KeyBallsPair> smallStack)
+        {
+            while (smallStack.Count != 0)
             {
                 KeyBallsPair smallItem = smallStack.Pop();
                 _probabilityBoxes.Add(new ProbabilityBox(smallItem.Key, smallItem.Key, _heightPerBox));
             }
-
-            _listNeedsRebuilding = false;
         }
 
         private static long GreatestCommonDenominator(long a, long b)
