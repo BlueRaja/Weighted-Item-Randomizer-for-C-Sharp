@@ -316,9 +316,13 @@ namespace Weighted_Randomizer
         /// </summary>
         public int GetWeight(TKey key)
         {
+            if (key == null)
+                throw new ArgumentNullException("key", "key cannot be null");
+
             int weight;
             if(!_weights.TryGetValue(key, out weight))
-                throw new ArgumentException("Key not found in StaticWeightedRandomizer: " + key);
+                throw new KeyNotFoundException("Key not found in StaticWeightedRandomizer: " + key);
+
             return weight;
         }
 
@@ -328,11 +332,12 @@ namespace Weighted_Randomizer
         /// </summary>
         public void SetWeight(TKey key, int weight)
         {
-            if(weight <= 0)
+            if (weight <= 0)
             {
-                Remove(key);
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a weight with value <= 0");
             }
-            else if(Contains(key))
+
+            if(Contains(key))
             {
                 _weights[key] = weight;
             }

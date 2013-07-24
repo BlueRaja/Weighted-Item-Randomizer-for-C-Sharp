@@ -26,35 +26,71 @@ namespace Weighted_Randomizer
         /// Returns an item chosen randomly by weight (higher weights are more likely),
         /// and replaces it so that it can be chosen again
         /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the collection is empty
+        /// </exception>
         TKey NextWithReplacement();
 
         /// <summary>
         /// Returns an item chosen randomly by weight (higher weights are more likely),
         /// and removes it so it cannot be chosen again
         /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the collection is empty
+        /// </exception>
         TKey NextWithRemoval();
 
         /// <summary>
         /// Adds the given item with the given weight.  Higher weights are more likely to be chosen.
-        /// Throw an ArgumentOutOfRange exception if weight &lt;= 0.
+        /// If the key already exists in the collection, an exception is thrown.
         /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown if weight &lt;= 0.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the key already exists in the collection
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the key is null
+        /// </exception>
         void Add(TKey key, int weight);
 
         /// <summary>
-        /// Shortcut syntax to add, remove, and update an item
+        /// Shortcut syntax to add, remove, and update an item.  Higher weights are more likely to be chosen.
         /// </summary>
+        /// <exception cref="KeyNotFoundException">
+        /// Thrown if attempting to retrieve a key which does not exist in the collection
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown if attempting to set the weight to a value &lt;= 0.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the key is null
+        /// </exception>
         int this[TKey key] { get; set; }
 
         /// <summary>
         /// Returns the weight of the given item.  Throws an exception if the item is not added
         /// (use .Contains to check first if unsure)
         /// </summary>
+        /// <exception cref="KeyNotFoundException">
+        /// Thrown if the key does not exist in the collection
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the key is null
+        /// </exception>
         int GetWeight(TKey key);
 
         /// <summary>
-        /// Updates the weight of the given item, or adds it if it has not already been added.
-        /// If weight &lt;= 0, the item is removed.
+        /// Updates the weight of the given item, or adds it to the collection if it has not already been added.
+        /// Higher weights are more likely to be chosen.
         /// </summary>
+        /// <exception cref="ArgumentException">
+        /// Thrown if attempting to set the weight to a value &lt;= 0.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the key is null
+        /// </exception>
         void SetWeight(TKey key, int weight);
     }
 }

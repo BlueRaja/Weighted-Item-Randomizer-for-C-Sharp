@@ -123,6 +123,10 @@ namespace Weighted_Randomizer
             {
                 throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight <= 0!");
             }
+            if (key == null)
+            {
+                throw new ArgumentNullException("key", "Cannot add a null key");
+            }
 
             if(node == _sentinel)
             {
@@ -465,9 +469,13 @@ namespace Weighted_Randomizer
         /// </summary>
         public int GetWeight(TKey key)
         {
+            if (key == null)
+                throw new ArgumentNullException("key", "key cannot be null");
+
             Node node = FindNode(_root, key);
             if(node == null)
-                throw new ArgumentException("Key not found in DynamicWeightedRandomizer: " + key);
+                throw new KeyNotFoundException("Key not found in DynamicWeightedRandomizer: " + key);
+
             return node.weight;
         }
 
@@ -479,33 +487,27 @@ namespace Weighted_Randomizer
         {
             if(weight <= 0)
             {
-                Remove(key);
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a weight with value <= 0");
+            }
+
+            Node node = FindNode(_root, key);
+            if(node == null)
+            {
+                Add(key, weight);
             }
             else
             {
-                Node node = FindNode(_root, key);
-                if(node == null)
-                {
-                    Add(key, weight);
-                }
-                else
-                {
-                    int weightDelta = weight - node.weight;
+                int weightDelta = weight - node.weight;
 
-                    //This is a hack.  The point is to update this node's and all it's ancestors' subtreeWeights.
-                    //We already have a method that will do that; however, it uses the value of node.weight, rather
-                    //than a parameter.
-                    node.weight = weightDelta;
-                    UpdateSubtreeWeightsForInsertion(node);
+                //This is a hack.  The point is to update this node's and all it's ancestors' subtreeWeights.
+                //We already have a method that will do that; however, it uses the value of node.weight, rather
+                //than a parameter.
+                node.weight = weightDelta;
+                UpdateSubtreeWeightsForInsertion(node);
 
-                    //Finally, set the node.weight to what it should be
-                    node.weight = weight;
-                    node.subtreeWeight += weightDelta;
-
-#if DEBUG //TODO: DELETE
-                    DebugCheckTree();
-#endif
-                }
+                //Finally, set the node.weight to what it should be
+                node.weight = weight;
+                node.subtreeWeight += weightDelta;
             }
         }
         #endregion

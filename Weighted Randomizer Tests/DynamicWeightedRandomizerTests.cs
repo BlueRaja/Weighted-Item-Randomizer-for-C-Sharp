@@ -11,10 +11,9 @@ namespace Weighted_Randomizer_Tests
     [TestFixture]
     public class DynamicWeightedRandomizerTests : WeightedRandomizerTestsBase
     {
-        [SetUp]
-        public void Setup()
+        protected override IWeightedRandomizer<T> CreateTarget<T>()
         {
-            Target = new DynamicWeightedRandomizer<int>();
+            return new DynamicWeightedRandomizer<T>();
         }
     }
 }

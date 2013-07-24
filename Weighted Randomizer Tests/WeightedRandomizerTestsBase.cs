@@ -9,12 +9,23 @@ using Weighted_Randomizer;
 namespace Weighted_Randomizer_Tests
 {
     [Explicit("Don't run tests on the base class")]
-    public class WeightedRandomizerTestsBase
+    public abstract class WeightedRandomizerTestsBase
     {
         /// <summary>
-        /// The weighted randomizer class to be tested.  Needs to be set by inherited class in test-setup phase
+        /// Used to create the target of the tests.  Needs to be overriden by child test-class.
         /// </summary>
-        protected IWeightedRandomizer<int> Target { get; set; }
+        protected abstract IWeightedRandomizer<T> CreateTarget<T>() where T : IComparable<T>;
+
+        /// <summary>
+        /// The weighted randomizer class to be tested.
+        /// </summary>
+        private IWeightedRandomizer<int> Target { get; set; }
+
+        [SetUp]
+        public void Setup()
+        {
+            Target = CreateTarget<int>();
+        }
 
         [Test]
         public void TestCountSimple()
@@ -102,22 +113,6 @@ namespace Weighted_Randomizer_Tests
             Assert.AreEqual(10, Target.GetWeight(1));
             Assert.AreEqual(20, Target.GetWeight(2));
             Assert.AreEqual(30, Target.GetWeight(3));
-        }
-
-        [Test]
-        public void TestSetWeight()
-        {
-            Target.Add(1, 10);
-            Target.Add(2, 20);
-
-            Assert.AreEqual(10, Target.GetWeight(1));
-            Assert.AreEqual(20, Target.GetWeight(2));
-
-            Target.SetWeight(1, 11);
-            Target.SetWeight(2, 12);
-
-            Assert.AreEqual(11, Target.GetWeight(1));
-            Assert.AreEqual(12, Target.GetWeight(2));
         }
 
         [Test]
@@ -291,12 +286,119 @@ namespace Weighted_Randomizer_Tests
             Assert.Less(oneCount, 5300);
         }
 
-        //Exceptions
         [Test]
-        public void TestAddThrowsExceptionOnNegativeWeight()
+        public void TestProbNextWithReplacementMultipleItems()
+        {
+            ISet<int> items = new HashSet<int>(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            foreach (int item in items)
+            {
+                Target.Add(item);
+            }
+
+            //Chances of not seeing each one at least one are less than one-in-a-million
+            //(see http://en.wikipedia.org/wiki/Coupon_collector%27s_problem#Calculating_the_variance )
+            int[] counts = new int[10];
+            for(int i = 0; i <= 14200; i++)
+            {
+                int index = Target.NextWithReplacement();
+                counts[index-1]++;
+            }
+
+            Assert.That(counts.All(o => o != 0));
+        }
+
+        #region Exceptions
+        [Test]
+        public void TestAddThrowsOnNegativeWeight()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, -1));
             Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, 0));
         }
+
+        [Test]
+        public void TestAddThrowsOnDuplicateKey()
+        {
+            Target.Add(1, 2);
+            Assert.Throws<ArgumentException>(() => Target.Add(1, 2));
+            Assert.Throws<ArgumentException>(() => Target.Add(1, 1));
+            Assert.Throws<ArgumentException>(() => Target.Add(1));
+        }
+
+        private class ExampleClass : IComparable<ExampleClass>
+        {
+            public int CompareTo(ExampleClass other)
+            {
+                return 1;
+            }
+        }
+
+        [Test]
+        public void TestAddThrowsOnNullKey()
+        {
+            IWeightedRandomizer<ExampleClass> newTarget = CreateTarget<ExampleClass>();
+            Assert.Throws<ArgumentNullException>(() => newTarget.Add(null, 2));
+            Assert.Throws<ArgumentNullException>(() => newTarget.Add(null));
+        }
+
+        [Test]
+        public void TestNextWithRemovalThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() => Target.NextWithRemoval());
+        }
+
+        [Test]
+        public void TestNextWithReplacementThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() => Target.NextWithReplacement());
+        }
+
+        [Test]
+        public void TestBracketShorthandThrowsOnKeyNotFound()
+        {
+            Assert.Throws<KeyNotFoundException>(() => { int a = Target[1]; });
+        }
+
+        [Test]
+        public void TestBracketShorthandThrowsOnNegativeWeight()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target[1] = -1 );
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target[2] = 0);
+        }
+
+        [Test]
+        public void TestBracketShorthandThrowsOnNullKey()
+        {
+            IWeightedRandomizer<ExampleClass> newTarget = CreateTarget<ExampleClass>();
+            Assert.Throws<ArgumentNullException>(() => newTarget[null] = 1);
+            Assert.Throws<ArgumentNullException>(() => { int a = newTarget[null]; });
+        }
+
+        [Test]
+        public void TestGetWeightThrowsOnKeyNotFound()
+        {
+            Assert.Throws<KeyNotFoundException>(() => Target.GetWeight(1));
+        }
+
+        [Test]
+        public void TestGetWeighthandThrowsOnNullKey()
+        {
+            IWeightedRandomizer<ExampleClass> newTarget = CreateTarget<ExampleClass>();
+            Assert.Throws<ArgumentNullException>(() => newTarget.GetWeight(null));
+        }
+
+        [Test]
+        public void TestSetWeightThrowsOnNegativeWeight()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target.SetWeight(1, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target.SetWeight(1, 0));
+        }
+
+        [Test]
+        public void TestSetWeightThrowsOnNullKey()
+        {
+            IWeightedRandomizer<ExampleClass> newTarget = CreateTarget<ExampleClass>();
+            Assert.Throws<ArgumentNullException>(() => newTarget.SetWeight(null, 1));
+        }
+        #endregion
     }
 }
