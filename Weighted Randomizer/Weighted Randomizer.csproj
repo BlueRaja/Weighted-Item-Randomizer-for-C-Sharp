@@ -59,7 +59,7 @@
     <Compile Include="IWeightedRandomizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomExtensionMethods.cs" />
-    <Compile Include="ThreadSafeRandom.cs" />
+    <Compile Include="ThreadAwareRandom.cs" />
     <Compile Include="DynamicWeightedRandomizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
