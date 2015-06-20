@@ -119,9 +119,9 @@ namespace Weighted_Randomizer
 
         private void InsertNode(ref Node node, TKey key, int weight)
         {
-            if(weight <= 0)
+            if(weight < 0)
             {
-                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight <= 0!");
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight < 0!");
             }
             if (key == null)
             {
@@ -407,8 +407,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public TKey NextWithReplacement()
         {
-            if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the DynamicWeightedRandomizer");
+            VerifyHaveItemsToChooseFrom();
 
             Node currentNode = _root;
             long randomNumber = _random.NextLong(0, TotalWeight) + 1;  //[1, TotalWeight] inclusive
@@ -440,12 +439,22 @@ namespace Weighted_Randomizer
         /// </summary>
         public TKey NextWithRemoval()
         {
-            if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the DynamicWeightedRandomizer");
+            VerifyHaveItemsToChooseFrom();
 
             TKey randomKey = NextWithReplacement();
             Remove(randomKey);
             return randomKey;
+        }
+
+        /// <summary>
+        /// Throws an exception if the Count or TotalWeight are 0, meaning that are no items to choose from.
+        /// </summary>
+        private void VerifyHaveItemsToChooseFrom()
+        {
+            if (Count <= 0)
+                throw new InvalidOperationException("There are no items in the DynamicWeightedRandomizer");
+            if (TotalWeight <= 0)
+                throw new InvalidOperationException("There are no items with positive weight in the DynamicWeightedRandomizer");
         }
 
         /// <summary>
@@ -485,9 +494,9 @@ namespace Weighted_Randomizer
         /// </summary>
         public void SetWeight(TKey key, int weight)
         {
-            if(weight <= 0)
+            if(weight < 0)
             {
-                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a weight with value <= 0");
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a weight with value < 0");
             }
 
             Node node = FindNode(_root, key);

@@ -130,6 +130,7 @@ namespace Weighted_Randomizer_Tests
             Target.SetWeight(1, 10);
             Assert.AreEqual(1, Target.Count);
             Assert.AreEqual(10, Target.GetWeight(1));
+            Assert.AreEqual(10, Target.TotalWeight);
         }
 
         [Test]
@@ -190,6 +191,12 @@ namespace Weighted_Randomizer_Tests
 
             Target.Add(3, 15);
             Assert.AreEqual(35, Target.TotalWeight);
+        }
+
+        [Test]
+        public void TestTotalWeightDoesNotThrowWithNoItems()
+        {
+            Assert.AreEqual(0, Target.TotalWeight);
         }
 
         [Test]
@@ -307,12 +314,71 @@ namespace Weighted_Randomizer_Tests
             Assert.That(counts.All(o => o != 0));
         }
 
+        [Test]
+        public void TestAddAllows0Weight()
+        {
+            Target.Add(1, 0);
+            Assert.AreEqual(1, Target.Count);
+            Assert.AreEqual(0, Target.TotalWeight);
+        }
+
+        [Test]
+        public void TestSetWeightAllows0Weight()
+        {
+            Target.Add(1, 10);
+            Target.SetWeight(1, 0);
+            Target.SetWeight(2, 0);
+            Assert.AreEqual(2, Target.Count);
+            Assert.AreEqual(0, Target.TotalWeight);
+        }
+
+        [Test]
+        public void TestBracketNotationAllows0Weight()
+        {
+            Target[1] = 0;
+            Assert.AreEqual(1, Target.Count);
+            Assert.AreEqual(0, Target.TotalWeight);
+        }
+
+        [Test]
+        public void TestGetWeightWith0Weight()
+        {
+            Target.SetWeight(1, 1);
+            Target.SetWeight(2, 0);
+            Assert.AreEqual(1, Target.GetWeight(1));
+            Assert.AreEqual(0, Target.GetWeight(2));
+        }
+
+        [Test]
+        public void TestNextWithReplacementsWorksWithA0Weight()
+        {
+            Target.Add(1, 1);
+            Target.Add(2, 0);
+
+            for(int i = 0; i < 100; i++)
+            {
+                Assert.AreEqual(1, Target.NextWithReplacement());
+            }
+        }
+
+        [Test]
+        public void TestNextWithRemovalWorksWithA0Weight()
+        {
+            Target.Add(1, 1);
+            Target.Add(2, 0);
+
+            int returnValue = Target.NextWithRemoval();
+            Assert.AreEqual(1, returnValue);
+            Assert.AreEqual(1, Target.Count);
+            Assert.AreEqual(0, Target.TotalWeight);
+        }
+
         #region Exceptions
         [Test]
         public void TestAddThrowsOnNegativeWeight()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target.Add(1, int.MinValue));
         }
 
         [Test]
@@ -353,6 +419,20 @@ namespace Weighted_Randomizer_Tests
         }
 
         [Test]
+        public void TestNextWithRemovalThrowsWith0Weight()
+        {
+            Target.Add(1, 0);
+            Assert.Throws<InvalidOperationException>(() => Target.NextWithRemoval());
+        }
+
+        [Test]
+        public void TestNextWithReplacementThrowsWith0Weight()
+        {
+            Target.Add(1, 0);
+            Assert.Throws<InvalidOperationException>(() => Target.NextWithReplacement());
+        }
+
+        [Test]
         public void TestBracketShorthandThrowsOnKeyNotFound()
         {
             Assert.Throws<KeyNotFoundException>(() => { int a = Target[1]; });
@@ -362,7 +442,7 @@ namespace Weighted_Randomizer_Tests
         public void TestBracketShorthandThrowsOnNegativeWeight()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Target[1] = -1 );
-            Assert.Throws<ArgumentOutOfRangeException>(() => Target[2] = 0);
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target[2] = Int32.MinValue);
         }
 
         [Test]
@@ -390,7 +470,7 @@ namespace Weighted_Randomizer_Tests
         public void TestSetWeightThrowsOnNegativeWeight()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Target.SetWeight(1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => Target.SetWeight(1, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Target.SetWeight(1, int.MinValue));
         }
 
         [Test]

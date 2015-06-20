@@ -27,7 +27,7 @@ namespace Weighted_Randomizer
         /// and replaces it so that it can be chosen again
         /// </summary>
         /// <exception cref="InvalidOperationException">
-        /// Thrown if the collection is empty
+        /// Thrown if the collection is empty or has only 0-weight items
         /// </exception>
         TKey NextWithReplacement();
 
@@ -36,7 +36,7 @@ namespace Weighted_Randomizer
         /// and removes it so it cannot be chosen again
         /// </summary>
         /// <exception cref="InvalidOperationException">
-        /// Thrown if the collection is empty
+        /// Thrown if the collection is empty or has only 0-weight items
         /// </exception>
         TKey NextWithRemoval();
 
@@ -45,7 +45,7 @@ namespace Weighted_Randomizer
         /// If the key already exists in the collection, an exception is thrown.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown if weight &lt;= 0.
+        /// Thrown if weight &lt; 0.
         /// </exception>
         /// <exception cref="ArgumentException">
         /// Thrown if the key already exists in the collection
@@ -62,7 +62,7 @@ namespace Weighted_Randomizer
         /// Thrown if attempting to retrieve a key which does not exist in the collection
         /// </exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown if attempting to set the weight to a value &lt;= 0.
+        /// Thrown if attempting to set the weight to a value &lt; 0.
         /// </exception>
         /// <exception cref="ArgumentNullException">
         /// Thrown if the key is null
@@ -86,7 +86,7 @@ namespace Weighted_Randomizer
         /// Higher weights are more likely to be chosen.
         /// </summary>
         /// <exception cref="ArgumentException">
-        /// Thrown if attempting to set the weight to a value &lt;= 0.
+        /// Thrown if attempting to set the weight to a value &lt; 0.
         /// </exception>
         /// <exception cref="ArgumentNullException">
         /// Thrown if the key is null

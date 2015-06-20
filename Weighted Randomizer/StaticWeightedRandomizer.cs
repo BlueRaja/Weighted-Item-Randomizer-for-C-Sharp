@@ -128,9 +128,9 @@ namespace Weighted_Randomizer
         /// </summary>
         public void Add(TKey key, int weight)
         {
-            if(weight <= 0)
+            if(weight < 0)
             {
-                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight <= 0!");
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a key with weight < 0!");
             }
 
             _weights.Add(key, weight);
@@ -184,8 +184,7 @@ namespace Weighted_Randomizer
         /// </summary>
         public TKey NextWithReplacement()
         {
-            if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the StaticWeightedRandomizer");
+            VerifyHaveItemsToChooseFrom();
 
             if(_listNeedsRebuilding)
             {
@@ -306,12 +305,22 @@ namespace Weighted_Randomizer
         /// </summary>
         public TKey NextWithRemoval()
         {
-            if(Count <= 0)
-                throw new InvalidOperationException("There are no items in the StaticWeightedRandomizer");
+            VerifyHaveItemsToChooseFrom();
 
             TKey randomKey = NextWithReplacement();
             Remove(randomKey);
             return randomKey;
+        }
+
+        /// <summary>
+        /// Throws an exception if the Count or TotalWeight are 0, meaning that are no items to choose from.
+        /// </summary>
+        private void VerifyHaveItemsToChooseFrom()
+        {
+            if (Count <= 0)
+                throw new InvalidOperationException("There are no items in the StaticWeightedRandomizer");
+            if (TotalWeight <= 0)
+                throw new InvalidOperationException("There are no items with positive weight in the StaticWeightedRandomizer");
         }
 
         /// <summary>
@@ -351,13 +360,14 @@ namespace Weighted_Randomizer
         /// </summary>
         public void SetWeight(TKey key, int weight)
         {
-            if (weight <= 0)
+            if (weight < 0)
             {
-                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a weight with value <= 0");
+                throw new ArgumentOutOfRangeException("weight", weight, "Cannot add a weight with value < 0");
             }
 
             if(Contains(key))
             {
+                TotalWeight += (weight - _weights[key]);
                 _weights[key] = weight;
             }
             else
