@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Weighted Randomizer")]
-[assembly: AssemblyDescription("A collection which allows fast random selection of items")]
+[assembly: AssemblyDescription("A data structure which allows fast random selection of items")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Weighted Randomizer")]

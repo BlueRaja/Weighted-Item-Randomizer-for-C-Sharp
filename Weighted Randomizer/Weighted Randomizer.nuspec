@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>WeightedRandomizer</id>
+    <version>1.0.0</version>
+    <title>Weighted Randomizer</title>
+    <authors>BlueRaja</authors>
+    <owners>BlueRaja</owners>
+    <licenseUrl>https://github.com/BlueRaja/Weighted-Item-Randomizer-for-C-Sharp/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/BlueRaja/Weighted-Item-Randomizer-for-C-Sharp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A data structure which allows fast random selection of items</description>
+    <releaseNotes>Official 1.0 release!</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>C# weighted randomizer random data-structure</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\Weighted Randomizer.dll" target="lib\net35\Weighted Randomizer.dll" />
+    <file src="bin\Release\Weighted Randomizer.pdb" target="lib\net35\Weighted Randomizer.pdb" />
+  </files>
+</package>
