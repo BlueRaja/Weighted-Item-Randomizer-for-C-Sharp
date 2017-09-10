@@ -1,68 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5FE32F4C-6567-4071-8100-650ED6D9FAD5}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Weighted_Randomized_Net_Standard</RootNamespace>
-    <AssemblyName>Weighted Randomized Net Standard</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Weighted Randomized Net Standard.XML</DocumentationFile>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <Version>1.0.3</Version>
+    <PackageId>WeightedRandomizer</PackageId>
+    <Authors>BlueRaja</Authors>
+    <Company>BlueRaja</Company>
+    <Product>WeightedRandomizer</Product>
+    <Description>A data structure which allows fast random selection of items</Description>
+    <PackageProjectUrl>https://github.com/BlueRaja/Weighted-Item-Randomizer-for-C-Sharp</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/BlueRaja/Weighted-Item-Randomizer-for-C-Sharp/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/BlueRaja/Weighted-Item-Randomizer-for-C-Sharp</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyName>WeightedRandomizer</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="project.json" />
+    <Compile Include="..\Weighted Randomizer\StaticWeightedRandomizer.cs" />
+    <Compile Include="..\Weighted Randomizer\IWeightedRandomizer.cs" />
+    <Compile Include="..\Weighted Randomizer\RandomExtensionMethods.cs" />
+    <Compile Include="..\Weighted Randomizer\ThreadAwareRandom.cs" />
+    <Compile Include="..\Weighted Randomizer\DynamicWeightedRandomizer.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Weighted Randomizer\DynamicWeightedRandomizer.cs">
-      <Link>DynamicWeightedRandomizer.cs</Link>
-    </Compile>
-    <Compile Include="..\Weighted Randomizer\IWeightedRandomizer.cs">
-      <Link>IWeightedRandomizer.cs</Link>
-    </Compile>
-    <Compile Include="..\Weighted Randomizer\RandomExtensionMethods.cs">
-      <Link>RandomExtensionMethods.cs</Link>
-    </Compile>
-    <Compile Include="..\Weighted Randomizer\StaticWeightedRandomizer.cs">
-      <Link>StaticWeightedRandomizer.cs</Link>
-    </Compile>
-    <Compile Include="..\Weighted Randomizer\ThreadAwareRandom.cs">
-      <Link>ThreadAwareRandom.cs</Link>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
