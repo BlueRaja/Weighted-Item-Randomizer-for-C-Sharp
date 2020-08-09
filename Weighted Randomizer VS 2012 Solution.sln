@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomizer", "Weig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomizer Tests", "Weighted Randomizer Tests\Weighted Randomizer Tests.csproj", "{D6124895-8A5E-41B1-898C-CB95AA9C7218}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomized Net Standard", "Weighted Randomized Net Standard\Weighted Randomized Net Standard.csproj", "{5FE32F4C-6567-4071-8100-650ED6D9FAD5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weighted Randomizer Net Standard", "Weighted Randomizer Net Standard\Weighted Randomizer Net Standard.csproj", "{5FE32F4C-6567-4071-8100-650ED6D9FAD5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>WeightedRandomizer</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <title>Weighted Randomizer</title>
     <authors>BlueRaja</authors>
     <owners>BlueRaja</owners>
@@ -10,8 +10,8 @@
     <projectUrl>https://github.com/BlueRaja/Weighted-Item-Randomizer-for-C-Sharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A data structure which allows fast random selection of items</description>
-    <releaseNotes>Added support for .Net Standard 1.0</releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <releaseNotes>Fixed wrong DLL name on nuget</releaseNotes>
+    <copyright>Copyright 2020</copyright>
     <tags>C# weighted randomizer random data-structure</tags>
   </metadata>
   <files>
@@ -19,8 +19,8 @@
     <file src="bin\Release\Weighted Randomizer.pdb" target="lib\net35\Weighted Randomizer.pdb" />
 	  <file src="bin\Release\Weighted Randomizer.xml" target="lib\net35\Weighted Randomizer.xml" />
     
-    <file src="..\Weighted Randomized Net Standard\bin\Release\Weighted Randomized Net Standard.dll" target="lib\netstandard1.0\Weighted Randomizer.dll" />
-    <file src="..\Weighted Randomized Net Standard\bin\Release\Weighted Randomized Net Standard.pdb" target="lib\netstandard1.0\Weighted Randomizer.pdb" />
-    <file src="..\Weighted Randomized Net Standard\bin\Release\Weighted Randomized Net Standard.xml" target="lib\netstandard1.0\Weighted Randomizer.xml" />
+    <file src="..\Weighted Randomizer Net Standard\bin\Release\Weighted Randomizer Net Standard.dll" target="lib\netstandard1.0\Weighted Randomizer.dll" />
+    <file src="..\Weighted Randomizer Net Standard\bin\Release\Weighted Randomizer Net Standard.pdb" target="lib\netstandard1.0\Weighted Randomizer.pdb" />
+    <file src="..\Weighted Randomizer Net Standard\bin\Release\Weighted Randomizer Net Standard.xml" target="lib\netstandard1.0\Weighted Randomizer.xml" />
   </files>
 </package>

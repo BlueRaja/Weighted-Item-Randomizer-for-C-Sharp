@@ -2,9 +2,11 @@
 /Weighted Randomizer/obj/
 /Weighted Randomizer Tests/bin/
 /Weighted Randomizer Tests/obj/
-/Weighted Randomized Net Standard/bin/
-/Weighted Randomized Net Standard/obj/
+/Weighted Randomizer Net Standard/bin/
+/Weighted Randomizer Net Standard/obj/
+/Weighted Randomizer Net Standard/out/
 *.user
 *.suo
 /packages/
 project.lock.json
+/.vs/
