@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Weighted_Randomizer</RootNamespace>
-    <AssemblyName>Weighted Randomizer</AssemblyName>
+    <AssemblyName>WeightedRandomizer</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -39,7 +39,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\Release\Weighted Randomizer.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\WeightedRandomizer.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
